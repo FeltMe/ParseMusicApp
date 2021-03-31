@@ -7,6 +7,7 @@ namespace WpfTestMusicParseApp.Classes {
 		private string _artistName; 
 		private string _songName;
 
+		//todo check valid datas
 		public string ArtistName {
 			get { return _artistName; }
 			set { _artistName = value; }
