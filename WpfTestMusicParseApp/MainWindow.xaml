@@ -7,6 +7,26 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Button Width="100px" Click="Button_Click" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5">Load</Button>
+        <Grid Grid.RowSpan="4">
+            <ListView Name="SoundsList" Background="White">
+                <ListView.View>
+                    <GridView x:Name="MyGrid">
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=SongName}" Width="100">Song name</GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Path=ArtistName}" Width="100">Artist name</GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
     </Grid>
 </Window>
