@@ -95,15 +95,17 @@ namespace WpfTestMusicParseApp {
 
 				var sound_names = doc.DocumentNode.SelectNodes("//a[contains(@class, 'list-group-item removehref')]");
 
-				var header = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'col-md-9')]").ChildNodes;
-				var name_artist = header[1].InnerText;
+				var header = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'col-md-9')]");
 
-				foreach (var item in sound_names) {
-					observable?.Add(new SounInfo() { ArtistName = name_artist, SongName = item.ChildNodes[1].InnerText.Trim() });
+				if (sound_names != null && header != null) {
+					var name_artist = header.ChildNodes[1].InnerText;
+					foreach (var item in sound_names) {
+						observable?.Add(new SounInfo() { ArtistName = name_artist, SongName = item.ChildNodes[1].InnerText.Trim() });
+					}
 				}
-
-			} catch {
-				MessageBox.Show("No artist found, try enter valid link or artist name");
+			} catch (Exception) {
+				Exception ex;
+				MessageBox.Show("smth went wrong, call your sysadmin xD" + nameof(ex));
 			}
 		}
 
