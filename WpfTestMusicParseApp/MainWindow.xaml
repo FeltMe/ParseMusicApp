@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfTestMusicParseApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Sonds" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5*"/>
@@ -18,7 +18,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Button Width="100px" Click="Button_Click" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5">Load</Button>
-        <TextBox x:Name="LinkBox" Grid.Row="1" Grid.Column="1" Width="100px" Height="auto">
+        <TextBox x:Name="LinkBox" Grid.Row="1" Grid.Column="1" Width="100px" Height="auto" TextWrapping="Wrap">
             <TextBox.Style>
                 <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
                     <Style.Resources>
