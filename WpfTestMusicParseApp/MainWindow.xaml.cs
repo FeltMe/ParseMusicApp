@@ -24,14 +24,22 @@ namespace WpfTestMusicParseApp {
 	public partial class MainWindow : Window {
 
 		private ObservableCollection<SounInfo> observable = new ObservableCollection<SounInfo>();
+		private static bool LinkCheck = false;
+		private string link = "http://groovesharks.org/artist/Beyonc%C3%A9";
 
 		public MainWindow() {
 			InitializeComponent();
 			SoundsList.ItemsSource = observable;
 		}
 
-		private async void Button_Click(object sender, RoutedEventArgs e) {
-			GetSoundNodes();
+		private void Button_Click(object sender, RoutedEventArgs e) {
+			observable.Clear();
+			if (IsValidLink(LinkBox.Text)) {
+				link = LinkBox.Text;
+				GetSoundNodes();
+			} else
+				MessageBox.Show("Enter valid link");
+
 		}
 
 		private async void GetSoundNodes() {
@@ -42,7 +50,7 @@ namespace WpfTestMusicParseApp {
 
 		private async Task GetContectAsync(HttpClient client) {
 			try {
-				HttpResponseMessage response = await client.GetAsync("http://groovesharks.org/artist/Lady-Gaga");
+				HttpResponseMessage response = await client.GetAsync(link);
 				response.EnsureSuccessStatusCode();
 				string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -55,12 +63,16 @@ namespace WpfTestMusicParseApp {
 				var name_artist = header[1].InnerText;
 
 				foreach (var item in sound_names) {
-					observable.Add(new SounInfo() { ArtistName = name_artist, SongName = item.ChildNodes[1].InnerText.Trim() });
+					observable?.Add(new SounInfo() { ArtistName = name_artist, SongName = item.ChildNodes[1].InnerText.Trim() });
 				}
 
-			} finally {
-				Console.WriteLine("Done");
+			} catch (NullReferenceException ex) {
+				MessageBox.Show("No artist found, try enter valid link or artist name" + nameof(ex));
 			}
+		}
+
+		private bool IsValidLink(string myLink) {
+			return myLink.StartsWith("http://") && myLink.Contains(".org");
 		}
 
 	}
