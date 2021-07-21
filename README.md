@@ -1,4 +1,4 @@
-# WpfTestMusicParseApp
+# Wpf Music Parse App
 
 Simple use of HTML Agility Pack to parse artist and his sounds name from
 http://groovesharks.org/artist/Lady-Gaga
