@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using HtmlAgilityPack;
 using System.Collections.ObjectModel;
 using WpfTestMusicParseApp.Classes;
 
-namespace WpfTestMusicParseApp {
+namespace WpfTestMusicParseApp
+{
 
 	public partial class MainWindow : Window {
 
@@ -25,11 +16,15 @@ namespace WpfTestMusicParseApp {
 		/// <summary>
 		/// Collection that realize observable pattern and hold sound data
 		/// </summary>
-		private ObservableCollection<SounInfo> observable = new ObservableCollection<SounInfo>();
+		private readonly ObservableCollection<SounInfo> observableCollectionSounds = new();
 		/// <summary>
 		/// Url address to parse info
 		/// </summary>
-		private string link;
+		private string Link { get; set; }
+		/// <summary>
+		/// https://docs.microsoft.com/ru-ru/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
+		/// </summary>
+		private readonly HttpClient _httpClient;
 		#endregion
 
 		#region ctors
@@ -39,7 +34,8 @@ namespace WpfTestMusicParseApp {
 		/// </summary>
 		public MainWindow() {
 			InitializeComponent();
-			SoundsList.ItemsSource = observable;
+			SoundsList.ItemsSource = observableCollectionSounds;
+			_httpClient = new HttpClient();
 		}
 		#endregion
 
@@ -50,29 +46,21 @@ namespace WpfTestMusicParseApp {
 		/// <param name="sender">Instance of <see cref="Button"/> that called the event</param>
 		/// <param name="e">Arguments passed by sender for subscribers</param>
 		private void Button_Click(object sender, RoutedEventArgs e) {
-			observable.Clear();
+			observableCollectionSounds.Clear();
 			if (IsValidLink(LinkBox.Text)) {
-				link = LinkBox.Text;
+				Link = LinkBox.Text;
 				StartClientAndTakeDatas();
 			} else
 				MessageBox.Show("Enter valid link");
-
 		}
 		#endregion
 
 		#region BuisnesFuckingLogic
-
-		//todo Move this logic to new sln and connect there is to just take datas
-
-
-
 		/// <summary>
 		/// Start new HTTPClient wich realize <see cref="IDisposable"/> to connect to website
 		/// </summary>
 		private async void StartClientAndTakeDatas() {
-			using (HttpClient client = new HttpClient()) {
-				await GetContectAsync(client);
-			}
+			await GetContectAsync(_httpClient);
 		}
 
 
@@ -86,21 +74,21 @@ namespace WpfTestMusicParseApp {
 		/// <returns> <see cref="Task"/> which do all dirty work</returns>
 		private async Task GetContectAsync(HttpClient client) {
 			try {
-				HttpResponseMessage response = await client.GetAsync(link);
+				HttpResponseMessage response = await client.GetAsync(Link);
 				response.EnsureSuccessStatusCode();
 				string responseBody = await response.Content.ReadAsStringAsync();
 
-				var doc = new HtmlDocument();
-				doc.LoadHtml(responseBody);
+				var htmlDocument = new HtmlDocument();
+				htmlDocument.LoadHtml(responseBody);
 
-				var sound_names = doc.DocumentNode.SelectNodes("//a[contains(@class, 'list-group-item removehref')]");
+				var soundNames = htmlDocument.DocumentNode.SelectNodes("//a[contains(@class, 'list-group-item removehref')]");
 
-				var header = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'col-md-9')]");
+				var header = htmlDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'col-md-9')]");
 
-				if (sound_names != null && header != null) {
-					var name_artist = header.ChildNodes[1].InnerText;
-					foreach (var item in sound_names) {
-						observable?.Add(new SounInfo() { ArtistName = name_artist, SongName = item.ChildNodes[1].InnerText.Trim() });
+				if (soundNames != null && header != null) {
+					var artistName = header.ChildNodes[1].InnerText;
+					foreach (var item in soundNames) {
+						observableCollectionSounds?.Add(new SounInfo() { ArtistName = artistName, SongName = item.ChildNodes[1].InnerText.Trim() });
 					}
 				}
 			} catch (Exception) {
@@ -112,13 +100,12 @@ namespace WpfTestMusicParseApp {
 		/// <summary>
 		/// Check for valid link
 		/// </summary>
-		/// <param name="myLink">Link to check</param>
+		/// <param name="link">Link to check</param>
 		/// <returns>True if link valid, false if link is invalid</returns>
-		private bool IsValidLink(string myLink) {
-			Uri uriResult;
-			return myLink.StartsWith("http://groovesharks.org/artist")
+		private bool IsValidLink(string link) {
+			return link.StartsWith("http://groovesharks.org/artist")
 			//Hardcode 
-			&& Uri.TryCreate(myLink, UriKind.Absolute, out uriResult) && uriResult.Scheme == Uri.UriSchemeHttp;
+			&& Uri.TryCreate(link, UriKind.Absolute, out Uri uriResult) && uriResult.Scheme == Uri.UriSchemeHttp;
 		}
 		#endregion
 	}
